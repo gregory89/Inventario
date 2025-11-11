@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Mercancía</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Sistema de Gestión de Mercancía</h1>
+        </header>
+
+        <!-- Menú Principal -->
+        <nav id="mainMenu" class="main-menu">
+            <button class="menu-btn" onclick="showSection('registro')">
+                <span class="icon">➕</span>
+                <span class="text">Registro de Mercancía</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('consulta')">
+                <span class="icon">🔍</span>
+                <span class="text">Consulta de Mercancía</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('venta')">
+                <span class="icon">💰</span>
+                <span class="text">Venta</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('historial-registro')">
+                <span class="icon">📋</span>
+                <span class="text">Historial de Registro</span>
+            </button>
+            <button class="menu-btn" onclick="showSection('historial-ventas')">
+                <span class="icon">📊</span>
+                <span class="text">Historial de Ventas</span>
+            </button>
+        </nav>
+
+        <!-- Sección: Registro de Mercancía -->
+        <section id="registro" class="section hidden">
+            <div class="section-header">
+                <h2>Registro de Mercancía</h2>
+                <button class="btn-secondary" onclick="showSection('mainMenu')">← Volver al Menú</button>
+            </div>
+            <form id="formRegistro" class="form">
+                <div class="form-group">
+                    <label for="nombre">Nombre de la Mercancía *</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="precio">Precio *</label>
+                        <input type="number" id="precio" name="precio" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad">Cantidad *</label>
+                        <input type="number" id="cantidad" name="cantidad" min="0" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Mercancía</button>
+                    <button type="reset" class="btn-secondary">Limpiar Formulario</button>
+                </div>
+            </form>
+            <div id="mensajeRegistro" class="mensaje hidden"></div>
+        </section>
+
+        <!-- Sección: Consulta de Mercancía -->
+        <section id="consulta" class="section hidden">
+            <div class="section-header">
+                <h2>Consulta de Mercancía</h2>
+                <button class="btn-secondary" onclick="showSection('mainMenu')">← Volver al Menú</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="buscarMercancia" placeholder="Buscar por nombre..." onkeyup="buscarMercancia()">
+            </div>
+            <div id="tablaMercancia" class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Fecha Registro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyMercancia">
+                        <!-- Datos cargados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección: Venta -->
+        <section id="venta" class="section hidden">
+            <div class="section-header">
+                <h2>Registrar Venta</h2>
+                <button class="btn-secondary" onclick="showSection('mainMenu')">← Volver al Menú</button>
+            </div>
+            <form id="formVenta" class="form">
+                <div class="form-group">
+                    <label for="mercanciaVenta">Seleccionar Mercancía *</label>
+                    <select id="mercanciaVenta" name="mercanciaVenta" required onchange="actualizarInfoVenta()">
+                        <option value="">-- Seleccione una mercancía --</option>
+                    </select>
+                </div>
+                <div id="infoMercancia" class="info-box hidden">
+                    <p><strong>Precio Unitario:</strong> <span id="precioUnitario">$0.00</span></p>
+                    <p><strong>Stock Disponible:</strong> <span id="stockDisponible">0</span></p>
+                </div>
+                <div class="form-group">
+                    <label for="cantidadVenta">Cantidad a Vender *</label>
+                    <input type="number" id="cantidadVenta" name="cantidadVenta" min="1" required onchange="calcularTotal()">
+                </div>
+                <div class="info-box">
+                    <p><strong>Total:</strong> <span id="totalVenta" class="total">$0.00</span></p>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Confirmar Venta</button>
+                    <button type="reset" class="btn-secondary" onclick="resetFormVenta()">Limpiar</button>
+                </div>
+            </form>
+            <div id="mensajeVenta" class="mensaje hidden"></div>
+        </section>
+
+        <!-- Sección: Historial de Registro -->
+        <section id="historial-registro" class="section hidden">
+            <div class="section-header">
+                <h2>Historial de Registro de Mercancía</h2>
+                <button class="btn-secondary" onclick="showSection('mainMenu')">← Volver al Menú</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Fecha Registro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyHistorialRegistro">
+                        <!-- Datos cargados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección: Historial de Ventas -->
+        <section id="historial-ventas" class="section hidden">
+            <div class="section-header">
+                <h2>Historial de Ventas</h2>
+                <button class="btn-secondary" onclick="showSection('mainMenu')">← Volver al Menú</button>
+            </div>
+            <div class="stats-box">
+                <div class="stat-item">
+                    <span class="stat-label">Total de Ventas:</span>
+                    <span id="totalVentas" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Ingresos Totales:</span>
+                    <span id="ingresosTotales" class="stat-value">$0.00</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mercancía</th>
+                            <th>Cantidad Vendida</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                            <th>Fecha Venta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyHistorialVentas">
+                        <!-- Datos cargados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="app.js" defer></script>
+</body>
+</html>
